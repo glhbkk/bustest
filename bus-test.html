@@ -7,16 +7,15 @@
 <style>
   body { font-family: -apple-system, sans-serif; background:#111; color:#eee; padding:20px; }
   h2 { color:#4af; margin-top:30px; }
-  pre { background:#222; padding:15px; border-radius:8px; overflow-x:auto; font-size:13px; white-space:pre-wrap; word-break:break-all; }
+  pre { background:#222; padding:15px; border-radius:8px; overflow-x:auto; font-size:12px; white-space:pre-wrap; word-break:break-all; }
   .ok { color:#4f4; }
   .err { color:#f44; }
   button { background:#4af; color:#000; border:none; padding:10px 20px; border-radius:8px; font-size:16px; cursor:pointer; margin-bottom:20px; }
 </style>
 </head>
 <body>
-<h1>🚌 버스 API 테스트</h1>
+<h1>🚌 버스 API 원본 응답</h1>
 <button onclick="runAll()">전체 테스트 실행</button>
-
 <div id="results"></div>
 
 <script>
@@ -30,27 +29,17 @@ const STOPS = [
 
 async function testStop(stop) {
   const div = document.createElement('div');
-  div.innerHTML = `<h2>${stop.name} — 정류장ID: ${stop.stId}</h2><pre>로딩 중...</pre>`;
+  div.innerHTML = `<h2>${stop.name}</h2><pre>로딩 중...</pre>`;
   document.getElementById('results').appendChild(div);
   const pre = div.querySelector('pre');
 
   try {
     const url = `https://apis.data.go.kr/6280000/busArrivalService/getAllRouteBusArrivalList?serviceKey=${API_KEY}&bstopId=${stop.stId}&numOfRows=20&pageNo=1&_type=json`;
-    pre.textContent = '요청 URL:\n' + url + '\n\n로딩 중...';
-
     const resp = await fetch(url);
     const text = await resp.text();
 
-    // JSON 파싱 시도
-    try {
-      const data = JSON.parse(text);
-      const items = data?.response?.body?.items;
-      pre.innerHTML = `<span class="ok">✅ 응답 성공 (HTTP ${resp.status})</span>\n\n` +
-        `총 결과: ${data?.response?.body?.totalCount ?? '?'}건\n\n` +
-        `items 내용:\n${JSON.stringify(items, null, 2)}`;
-    } catch(e) {
-      pre.innerHTML = `<span class="ok">HTTP ${resp.status} — JSON 파싱 실패 (XML 응답일 수 있음)</span>\n\n원본:\n` + text.slice(0, 2000);
-    }
+    // 원본 텍스트 그대로 표시
+    pre.innerHTML = `<span class="ok">✅ HTTP ${resp.status}</span>\n\n원본 응답:\n` + text;
   } catch(e) {
     pre.innerHTML = `<span class="err">❌ 오류: ${e.message}</span>`;
   }
